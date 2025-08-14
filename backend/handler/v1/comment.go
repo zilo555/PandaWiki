@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/labstack/echo/v4"
 
+	"github.com/chaitin/panda-wiki/consts"
 	"github.com/chaitin/panda-wiki/domain"
 	"github.com/chaitin/panda-wiki/handler"
 	"github.com/chaitin/panda-wiki/log"
@@ -26,7 +27,7 @@ func NewCommentHandler(e *echo.Echo, baseHandler *handler.BaseHandler, logger *l
 		usecase:     usecase,
 	}
 
-	group := e.Group("/api/v1/comment", h.auth.Authorize)
+	group := e.Group("/api/v1/comment", h.auth.Authorize, h.auth.ValidateKBUserPerm(consts.UserKBPermissionDataOperate))
 	group.GET("", h.GetCommentModeratedList)
 	group.DELETE("/list", h.DeleteCommentList)
 
@@ -56,13 +57,7 @@ func (h *CommentHandler) GetCommentModeratedList(c echo.Context) error {
 
 	ctx := c.Request().Context()
 
-	var edition int
-	// get edition
-	if editionValue := c.Get("edition"); editionValue != nil {
-		edition = editionValue.(int)
-	}
-
-	commentList, err := h.usecase.GetCommentListByKbID(ctx, &req, edition)
+	commentList, err := h.usecase.GetCommentListByKbID(ctx, &req, consts.GetLicenseEdition(c))
 	if err != nil {
 		return h.NewResponseWithError(c, "failed to get comment list KBID", err)
 	}

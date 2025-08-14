@@ -1,4 +1,3 @@
-'use client';
 import notFound from '@/assets/images/404.png';
 import { FooterProvider } from '@/components/footer';
 import { Box, Stack } from '@mui/material';
